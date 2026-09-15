@@ -1,0 +1,8 @@
+services:
+  reconx:
+    build: .
+    image: reconx:latest
+    container_name: reconx-scanner
+    volumes:
+      - ./reports:/app/reports
+    command: ["-t", "example.com", "--html", "--pdf"]

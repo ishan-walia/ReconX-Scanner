@@ -98,6 +98,10 @@ def render_report(report: Dict[str, Any], use_color: bool = True) -> str:
         lines.append(f"Location         : {geoip.get('city', '')}, {geoip.get('country', '')}")
         lines.append(f"ISP / Provider   : {geoip.get('isp', '')}")
         lines.append(f"ASN              : {geoip.get('asn', '')}")
+    waf_str = web_info.get("waf_detected")
+    if waf_str and waf_str != "None Detected (Direct Origin / Generic)":
+        lines.append(f"WAF / CDN        : {waf_str}")
+
     open_ports_summary = port_data.get("summary", "None")
     lines.append(f"Open Ports       : {open_ports_summary}")
     lines.append("")
@@ -118,6 +122,10 @@ def render_report(report: Dict[str, Any], use_color: bool = True) -> str:
     lines.append(f"NS Record        : {ns_status}")
     lines.append(f"SPF Record       : {spf_status}")
     lines.append(f"DMARC Record     : {dmarc_status}")
+    if dns_info.get("has_dnssec"):
+        lines.append(f"DNSSEC           : Active (DS Record Found)")
+    if dns_info.get("has_caa"):
+        lines.append(f"CAA Record       : Configured")
     lines.append("")
 
     # [SSL / CERTIFICATE]
@@ -148,6 +156,8 @@ def render_report(report: Dict[str, Any], use_color: bool = True) -> str:
     lines.append(f"Server           : {server_str}")
     lines.append(f"robots.txt       : {robots_status}")
     lines.append(f"sitemap.xml      : {sitemap_status}")
+    if web_info.get("security_txt_found"):
+        lines.append(f"security.txt     : Found (RFC 9116)")
     lines.append(f"Security Headers : {headers_score}")
     lines.append("")
 
@@ -157,7 +167,20 @@ def render_report(report: Dict[str, Any], use_color: bool = True) -> str:
         lines.append(f"Target Email     : {email_data.get('email', 'N/A')}")
         lines.append(f"Format           : {email_data.get('format_status', 'N/A')}")
         lines.append(f"Public Exposure  : {email_data.get('public_exposure', 'N/A')}")
-        lines.append(f"Breach Check     : {email_data.get('breach_status', 'N/A')}")
+    # [PASSIVE OSINT HARVESTER (theHarvester Engine)]
+    harvester_data = report.get("harvester", {})
+    emails_harvested = harvester_data.get("emails", [])
+    users_harvested = harvester_data.get("users", [])
+    if emails_harvested or users_harvested:
+        lines.append(f"{BOLD if color else ''}[PASSIVE OSINT HARVESTER (theHarvester Engine)]{RESET if color else ''}")
+        if emails_harvested:
+            lines.append(f"Discovered Emails ({len(emails_harvested)}):")
+            for item in emails_harvested[:6]:
+                lines.append(f"  * {item['email']} [{item.get('source', 'OSINT')}]")
+            if len(emails_harvested) > 6:
+                lines.append(f"  * ... (+{len(emails_harvested)-6} more)")
+        if users_harvested:
+            lines.append(f"Discovered Contacts: {', '.join(users_harvested[:4])}")
         lines.append("")
 
     # EXPOSURE SCORE

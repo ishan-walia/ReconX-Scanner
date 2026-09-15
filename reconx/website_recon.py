@@ -142,15 +142,60 @@ def check_ssl(domain: str, root_domain: str, port: int = 443, timeout: float = 2
     return cert_info
 
 
+def detect_waf_and_cdn(headers: Dict[str, str], server_banner: str) -> str:
+    """
+    Detect presence of Web Application Firewalls (WAF) and Reverse Proxies/CDNs
+    based on distinctive response headers, cookies, and server identities.
+    """
+    srv = (server_banner or "").lower()
+    h = headers
+
+    # 1. Cloudflare
+    if "cf-ray" in h or "cf-cache-status" in h or "cloudflare" in srv:
+        return "Cloudflare (WAF/CDN)"
+
+    # 2. AWS CloudFront / AWS WAF
+    if any(k.startswith("x-amz-cf-") or k == "x-amz-cf-id" for k in h) or "cloudfront" in h.get("via", "").lower():
+        return "AWS CloudFront / AWS WAF"
+
+    # 3. Akamai
+    if "x-akamai-transformed" in h or "akamai-origin-hop" in h or "akamai" in srv:
+        return "Akamai Edge / WAF"
+
+    # 4. Fastly
+    if "x-fastly-request-id" in h or "fastly-restarts" in h or "fastly" in srv:
+        return "Fastly CDN"
+
+    # 5. Imperva / Incapsula
+    if "x-iinfo" in h or ("x-cdn" in h and "incapsula" in h.get("x-cdn", "").lower()):
+        return "Imperva / Incapsula WAF"
+
+    # 6. Sucuri
+    if "x-sucuri-id" in h or "x-sucuri-cache" in h or "sucuri" in srv:
+        return "Sucuri CloudProxy WAF"
+
+    # 7. Azure Front Door / Microsoft CDN
+    if "x-azure-ref" in h or "x-ms-ref" in h or "azureedge" in h.get("via", "").lower():
+        return "Azure Front Door / Microsoft CDN"
+
+    # 8. F5 BIG-IP
+    if "bigip" in srv or any("bigip" in str(v).lower() for v in h.values()):
+        return "F5 BIG-IP Application Security"
+
+    return "None Detected (Direct Origin / Generic)"
+
+
 def inspect_http_endpoints(domain: str, timeout: float = 3.0) -> Dict[str, Any]:
     """
-    Inspect HTTP endpoints, security headers, robots.txt, and sitemap.xml.
+    Inspect HTTP endpoints, security headers, WAF signatures, robots.txt, and sitemap.xml.
     """
     headers_found: Dict[str, str] = {}
     server_banner = "Not Disclosed"
     https_enabled = False
     robots_found = False
     sitemap_found = False
+    security_txt_found = False
+    security_txt_url = None
 
     # 1. Probe HTTPS
     target_url = f"https://{domain}"
@@ -196,11 +241,15 @@ def inspect_http_endpoints(domain: str, timeout: float = 3.0) -> Dict[str, Any]:
 
     headers_score_str = f"{len(present_headers)}/{len(SECURITY_HEADERS)}"
 
-    # 3. Check robots.txt (only if web server responded)
+    # 3. Detect WAF / CDN
+    waf_detected = detect_waf_and_cdn(headers_found, server_banner)
+
+    # 4. Check robots.txt, sitemap.xml & RFC 9116 security.txt (only if web server responded)
+    proto = "https" if https_enabled else "http"
     if headers_found:
         try:
             rob_req = urllib.request.Request(
-                f"http://{domain}/robots.txt",
+                f"{proto}://{domain}/robots.txt",
                 headers={"User-Agent": "Mozilla/5.0 ReconX/1.0"}
             )
             with urllib.request.urlopen(rob_req, timeout=timeout) as resp:
@@ -209,10 +258,9 @@ def inspect_http_endpoints(domain: str, timeout: float = 3.0) -> Dict[str, Any]:
         except Exception:
             pass
 
-        # 4. Check sitemap.xml
         try:
             sm_req = urllib.request.Request(
-                f"http://{domain}/sitemap.xml",
+                f"{proto}://{domain}/sitemap.xml",
                 headers={"User-Agent": "Mozilla/5.0 ReconX/1.0"}
             )
             with urllib.request.urlopen(sm_req, timeout=timeout) as resp:
@@ -221,14 +269,31 @@ def inspect_http_endpoints(domain: str, timeout: float = 3.0) -> Dict[str, Any]:
         except Exception:
             pass
 
+        for sec_path in ("/.well-known/security.txt", "/security.txt"):
+            try:
+                sec_req = urllib.request.Request(
+                    f"{proto}://{domain}{sec_path}",
+                    headers={"User-Agent": "Mozilla/5.0 ReconX/1.0"}
+                )
+                with urllib.request.urlopen(sec_req, timeout=timeout) as resp:
+                    if resp.status == 200:
+                        security_txt_found = True
+                        security_txt_url = sec_path
+                        break
+            except Exception:
+                pass
+
     return {
         "https_enabled": https_enabled,
         "server_banner": server_banner,
+        "waf_detected": waf_detected,
         "headers_score_str": headers_score_str,
         "present_headers": present_headers,
         "missing_headers": missing_headers,
         "robots_found": robots_found,
         "sitemap_found": sitemap_found,
+        "security_txt_found": security_txt_found,
+        "security_txt_url": security_txt_url,
     }
 
 

@@ -16,5 +16,7 @@ env/
 .env
 *.env
 
-# Output reports (optional sample reports can be kept or excluded)
+# Output reports (auto-generated scan runs)
 *.log
+reports/reconx_*
+!reports/reconx_www_mkindustriesglobal_com_20260912_120425.pdf

@@ -163,6 +163,77 @@ class TestReconX(unittest.TestCase):
             self.assertTrue(os.path.exists(saved))
             self.assertGreater(os.path.getsize(saved), 1000)
 
+    def test_waf_detection(self):
+        from reconx.website_recon import detect_waf_and_cdn
+        # Test Cloudflare detection
+        cf_headers = {"cf-ray": "82348abc", "server": "cloudflare"}
+        self.assertIn("Cloudflare", detect_waf_and_cdn(cf_headers, "cloudflare"))
+
+        # Test CloudFront detection
+        aws_headers = {"via": "1.1 cloudfront.net", "x-amz-cf-id": "xyz"}
+        self.assertIn("CloudFront", detect_waf_and_cdn(aws_headers, "AmazonS3"))
+
+        # Test None detected
+        generic_headers = {"content-type": "text/html"}
+        self.assertIn("None Detected", detect_waf_and_cdn(generic_headers, "Apache/2.4"))
+
+    def test_html_report_generation(self):
+        import tempfile
+        import os
+        from reconx.html_generator import generate_html_report
+
+        mock_report = {
+            "target": "example.com",
+            "root_domain": "example.com",
+            "domain": {
+                "ip_info": {"primary_ip": "93.184.216.34"},
+                "dns": {"has_a": True, "has_mx": True, "has_ns": True, "has_spf": True, "has_dmarc": True, "has_dnssec": True},
+                "whois": {"registrar": "Example Registrar", "created_date": "1995-01-01"}
+            },
+            "website": {
+                "ssl": {"ssl_status": "Valid", "issuer": "DigiCert", "expires_on": "2027-01-01"},
+                "web": {
+                    "https_enabled": True,
+                    "server_banner": "nginx",
+                    "waf_detected": "Cloudflare (WAF/CDN)",
+                    "robots_found": True,
+                    "sitemap_found": True,
+                    "security_txt_found": True,
+                    "headers_score_str": "6/7",
+                    "present_headers": [("Strict-Transport-Security", "max-age=31536000")],
+                    "missing_headers": [("Content-Security-Policy", "Missing")]
+                }
+            },
+            "subdomains": ["www.example.com", "api.example.com"],
+            "ports": {"summary": "80 (HTTP), 443 (HTTPS)"},
+            "exposure": {
+                "score": 15,
+                "level": "LOW",
+                "findings": ["Subdomains discovered"],
+                "recommendations": ["Audit subdomains"]
+            }
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_html = os.path.join(tmpdir, "report.html")
+            saved = generate_html_report(mock_report, out_html, company_name="ACME SECURITY LABS")
+            self.assertTrue(os.path.exists(saved))
+            with open(saved, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn("ACME SECURITY LABS", content)
+            self.assertIn("example.com", content)
+            self.assertIn("Cloudflare", content)
+
+    def test_harvester_engine(self):
+        from reconx.harvester import run_harvester
+        # Run harvester on mock domain
+        result = run_harvester("example.com", "example.com", has_mx=True, subdomain_list=["www.example.com"])
+        self.assertEqual(result["engine"], "ReconX Passive theHarvester OSINT Engine")
+        self.assertEqual(result["target"], "example.com")
+        self.assertIsInstance(result["emails"], list)
+        self.assertIsInstance(result["hosts"], list)
+        self.assertGreaterEqual(result["total_hosts"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

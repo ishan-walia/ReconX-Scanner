@@ -9,26 +9,29 @@
 ```
 
 # ReconX 🔍
-### Next-Gen Passive OSINT, Attack Surface Mapping & Threat Exposure Assessment
+### Advanced Passive Attack Surface Mapping, OSINT Intelligence & Threat Exposure Scoring
 
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![CI/CD Build](https://img.shields.io/badge/build-passing-brightgreen.svg?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/ishan-walia/ReconX-Scanner/actions)
+[![Docker Ready](https://img.shields.io/badge/docker-ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![OSINT](https://img.shields.io/badge/Type-Passive%20OSINT-green.svg?style=for-the-badge&logo=target)](https://github.com/ishan-walia/ReconX-Scanner)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg?style=for-the-badge)](https://github.com/ishan-walia/ReconX-Scanner)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://github.com/ishan-walia/ReconX-Scanner/pulls)
+[![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-T1596%20%7C%20T1590-orange.svg?style=for-the-badge&logo=shield)](https://attack.mitre.org/tactics/TA0043/)
+[![Reports](https://img.shields.io/badge/Reports-PDF%20%7C%20HTML%20%7C%20JSON-blueviolet.svg?style=for-the-badge)](https://github.com/ishan-walia/ReconX-Scanner)
 
 <p align="center">
-  <b>An automated, non-invasive attack surface intelligence suite built for security analysts, penetration testers, and DevSecOps teams.</b>
+  <b>A production-grade, zero-intrusion attack surface mapping engine engineered for Security Operations, Penetration Testers, Bug Bounty Hunters, and DevSecOps teams.</b>
   <br />
-  Aggregates public domain records, SSL postures, DNS configurations, exposed service ports, and email leak intelligence into a quantified <b>Exposure Score (0–100)</b> with executive-ready PDF reporting.
+  Aggregates public records, DNS topologies, TLS/SSL certificate transparency trees, WAF reverse proxies, service ports, and email leak intelligence into a quantified <b>Exposure Index (0–100)</b> with executive PDF and dark-themed interactive HTML reports.
 </p>
 
 [Key Features](#-key-features) •
+[MITRE ATT&CK](#-mitre-attck-mapping) •
 [Architecture](#-architecture) •
-[Installation](#-installation) •
-[Quick Start](#-usage--examples) •
-[Executive Reports](#-executive-pdf-reporting) •
-[Scoring Methodology](#-exposure-scoring-methodology) •
+[Comparison](#-tool-comparison-matrix) •
+[Installation & Docker](#-installation--docker) •
+[Usage](#-usage--examples) •
+[Reports](#-executive-reporting) •
+[Future Roadmap](#-future-roadmap--next-milestones) •
 [License](#-license)
 
 ---
@@ -37,57 +40,106 @@
 
 ## 🌟 Why ReconX?
 
-Traditional network scanners and port scanners trigger firewall alerts, IDS/IPS alarms, and rate-limits. **ReconX** focuses on **passive reconnaissance and non-destructive validation**, aggregating threat exposure data from publicly available registers, Certificate Transparency (CT) logs, RFC-compliant mail records, and secure cryptographic handshakes.
+Traditional vulnerability and port scanners often send thousands of aggressive packets that trigger intrusion detection systems (IDS/IPS), trip Web Application Firewalls, and saturate customer networks. 
 
-- ⚡ **Zero Intrusion Risk**: Conduct deep surface assessments without sending payload exploits or triggering SOC alarms.
+**ReconX solves this problem** by conducting **100% non-invasive, passive reconnaissance and defensive posture auditing**:
+- ⚡ **Zero Intrusion Footprint**: Audits the target perimeter using publicly available registrars, DNS-over-HTTPS, Certificate Transparency (CT) logs, and RFC-standard cryptographic handshakes without triggering SOC alerts.
+- 🧱 **Automated WAF & CDN Fingerprinting**: Instantly recognizes Cloudflare, AWS CloudFront, Akamai, Fastly, Imperva/Incapsula, Sucuri, and Azure Front Door configurations.
 - 🎯 **Algorithmic Exposure Metric**: Translates complex technical misconfigurations into an actionable **0–100 Risk Score** (Low, Medium, High).
-- 📑 **C-Suite Ready Reports**: Auto-compiles findings into professional, customizable vector PDF audit documents with corporate branding.
-- 🧩 **Multi-Vector Auditing**: Evaluates DNS, WHOIS, SSL/TLS, OWASP Security Headers, Subdomains, Ports, and Email Leak Footprints in seconds.
+- 📑 **Dual C-Suite & Technical Reporting**: Auto-compiles findings into corporate-branded vector PDFs and standalone cyber-dark interactive HTML dashboards.
+- 🛡️ **DevSecOps Ready**: Easily integrates into CI/CD security quality gates via structured JSON outputs.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. 🌐 Domain, Geolocation & DNS Reconnaissance
-- **IP & Geolocation Intel**: Resolves IPv4/IPv6 addresses with ISP, ASN, country, and organization mapping.
-- **DNS Record Profiling**: Deep enumeration of `A`, `AAAA`, `MX`, `NS`, `TXT`, and `SOA` records.
-- **Email Security Auditing**: Verifies **SPF** (`v=spf1`) and **DMARC** (`_dmarc.domain`) alignment to detect spoofing and phishing vulnerabilities.
-- **RDAP / WHOIS Profiling**: Queries authoritative registry services for registrar details, creation timestamp, and domain age.
+### 1. 🌐 Infrastructure, IP & Geolocation Intelligence
+- **Dual-Stack Resolution**: Resolves primary IPv4 and IPv6 endpoints with fallbacks.
+- **Geographical & ISP Mapping**: Maps physical hosting location (City, Country), ISP organization, and Autonomous System Number (ASN).
+- **Domain Parking Detection**: Identifies parking signatures and monetized nameserver infrastructure.
 
-### 2. 🛡️ Web Security & Cryptographic Posture
-- **SSL/TLS Certificate Inspection**: Evaluates issuer validity, expiration countdown, protocol version, and SAN entries.
-- **HTTP Enforcement**: Detects unencrypted transport, verifies HTTP-to-HTTPS redirect chains.
-- **OWASP Header Analysis**: Benchmarks against industry-standard defensive headers:
+### 2. 🛡️ Reverse Proxy & WAF Fingerprinting
+- **Edge Layer Identification**: Actively detects underlying Web Application Firewalls (WAF) and Content Delivery Networks (CDN):
+  - Cloudflare, AWS CloudFront / AWS WAF, Akamai Edge, Fastly, Imperva / Incapsula, Sucuri CloudProxy, Azure Front Door, F5 BIG-IP.
+- **RFC 9116 `security.txt` Discovery**: Probes `/.well-known/security.txt` to find vulnerability disclosure policies and contact vectors.
+
+### 3. 🔐 Advanced DNS Security & Anti-Spoofing Audit
+- **Deep DNS Record Querying**: High-speed resolution of `A`, `AAAA`, `MX`, `NS`, `TXT`, and `SOA` records via Cloudflare DNS-over-HTTPS (DoH).
+- **Email Anti-Spoofing Evaluation**:
+  - **SPF Validation** (`v=spf1`): Verifies sender authentication syntax.
+  - **DMARC Enforcement** (`_dmarc.domain`): Assesses email spoofing mitigation policies (`p=reject`, `p=quarantine`, or `p=none`).
+- **DNSSEC Validation**: Checks cryptographic Delegation Signer (`DS`) records to prevent DNS cache poisoning.
+- **CAA Policy Audit**: Audits Certification Authority Authorization (`CAA`) records to ensure restricted certificate issuance.
+
+### 4. 🔒 Cryptographic Posture & SSL/TLS Analysis
+- **Live TLS Handshake Inspection**: Retrieves certificate subject, trusted CA issuer, protocol version, and expiration countdown.
+- **CT Log Fallback**: Gracefully queries Certificate Transparency registers if direct TLS handshakes are firewalled or blocked.
+- **OWASP Defensive Headers Benchmark**:
   - `Strict-Transport-Security` (HSTS)
   - `Content-Security-Policy` (CSP)
   - `X-Frame-Options` (Clickjacking defense)
   - `X-Content-Type-Options` (MIME sniffing defense)
   - `Referrer-Policy` & `Permissions-Policy`
 - **Server Identity Leaks**: Flags technology disclosure headers (`Server`, `X-Powered-By`).
-- **Sensitive Endpoint Discovery**: Probes for exposed `robots.txt` and `sitemap.xml`.
 
-### 3. 🔍 Passive Subdomain Enumeration
-- **Certificate Transparency (crt.sh)**: Harvests historical and hidden subdomains from public certificate logs.
-- **Concurrent DNS Validation**: Rapidly probes and confirms live subdomains (`www`, `api`, `mail`, `dev`, `stage`, etc.) using high-throughput thread pools.
+### 5. 🔍 Passive Subdomain Enumeration
+- **Certificate Transparency Harvesting**: Extracts historical and live subdomains from `crt.sh` and `Certspotter`.
+- **Threaded Concurrent DNS Probing**: Rapidly validates active endpoints (`www`, `api`, `mail`, `dev`, `stage`, `admin`, etc.).
 
-### 4. ⚡ Concurrent Port & Service Auditing
-- Non-invasive, rapid multi-threaded inspection of common critical ports:
-  - Web & Proxies: `80`, `443`, `8080`, `8443`
-  - Administration & Remote Access: `22` (SSH), `21` (FTP), `2082/2083/2086/2087` (cPanel/WHM)
-  - Mail Services: `25` (SMTP), `465` (SMTPS), `587` (Submission), `110/995` (POP3), `143/993` (IMAP)
-  - Databases: `3306` (MySQL), `53` (DNS)
+### 6. ⚡ Rapid Service Port Auditing
+- Non-invasive, multi-threaded probe across standard critical service ports:
+  - **Web**: `80` (HTTP), `443` (HTTPS), `8080`, `8443`
+  - **Administration**: `22` (SSH), `21` (FTP), `2082/2083/2086/2087` (cPanel/WHM)
+  - **Mail Services**: `25` (SMTP), `465` (SMTPS), `587` (Submission), `110/995` (POP3), `143/993` (IMAP)
+  - **Database & Services**: `3306` (MySQL), `53` (DNS)
 
-### 5. 📧 Email OSINT & Data Breach Intelligence
-- **RFC Syntax & Format Verification**: Validates structure and domain routing.
-- **MX Route Verification**: Tests if target domain has active, receiving mail exchangers.
-- **Breach Exposure Check**: Leverages privacy-preserving **k-Anonymity SHA-1 hash ranges** to audit compromised credential leaks without exposing the plain email.
+### 7. 📧 Privacy-Preserving Email OSINT & Data Breach Intel
+- **RFC Syntax & Domain MX Verification**: Confirms active receiving mail exchangers.
+- **k-Anonymity Leak Lookups**: Leverages privacy-preserving SHA-1 hash ranges to audit credential leaks without exposing plaintext email addresses.
 
-### 6. 📊 Automated Scoring & Mitigation Engine
-- Calculates a weighted **Security Exposure Index (0–100)**:
-  - `0 – 30` : 🟢 **LOW RISK** (Hardened surface posture)
+### 8. 🎯 theHarvester OSINT Engine (Passive Identity & Host Harvesting)
+- **Automated Public Email Discovery**: Passively aggregates public email addresses belonging to `@target.com` from web endpoints, CT certificate trees, and RDAP records.
+- **Identity & Registry Contact Correlation**: Harvests administrative and abuse points of contact from registries without loud active network scans.
+- **Host-to-IP Correlation**: Automatically resolves discovered subdomains and associates them with live IP routing.
+
+### 9. 📊 Exposure Scoring & Remediation Matrix
+- Quantifies security findings into an automated **0–100 Exposure Index**:
+  - `0 – 30` : 🟢 **LOW RISK** (Hardened perimeter posture)
   - `31 – 60` : 🟡 **MEDIUM RISK** (Hygiene improvements recommended)
   - `61 – 100`: 🔴 **HIGH RISK** (Immediate remediation required)
-- Produces targeted, prioritized remediation advice tailored to each detected gap.
+- Generates targeted, prioritized remediation advice tailored to each detected vulnerability.
+
+---
+
+## 🎯 MITRE ATT&CK® Mapping
+
+ReconX directly aligns with the **MITRE ATT&CK Enterprise Reconnaissance Matrix (TA0043)**:
+
+| Technique ID | Technique Name | ReconX Implementation |
+| :--- | :--- | :--- |
+| **T1596.001** | DNS Records | Automated enumeration of A, MX, NS, TXT, SPF, DMARC, CAA, and DNSSEC records via DoH |
+| **T1596.002** | WHOIS & RDAP | Authoritative registry queries for registrar details, creation timestamp, and domain age |
+| **T1596.003** | Digital Certificates | Certificate Transparency (CT) log aggregation, SAN harvesting, and TLS validity auditing |
+| **T1590.001** | Domain Properties | Subdomain enumeration, apex domain normalization, and parking server detection |
+| **T1590.002** | Network Topology | IP Geolocation, ASN mapping, ISP profiling, and reverse-proxy WAF fingerprinting |
+| **T1592.002** | Software Banners | Extraction of web server disclosures (`Server`, `X-Powered-By`) and OWASP defensive posture |
+| **T1589.002** | Email Addresses | Email format validation, active MX verification, and k-Anonymity breach intelligence |
+
+---
+
+## ⚖️ Tool Comparison Matrix
+
+| Feature | **ReconX** | Nmap | Amass | theHarvester | Nikto |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Passive & Non-Intrusive** | ✅ Yes | ❌ No | ⚠️ Partial | ✅ Yes | ❌ No |
+| **Executive Branded PDF Report** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Interactive Dark HTML Report** | ✅ Yes | ❌ No | ❌ No | ❌ No | ⚠️ Basic |
+| **Algorithmic Exposure Score (0-100)** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **WAF / CDN Fingerprinting** | ✅ Yes | ⚠️ Script | ❌ No | ❌ No | ⚠️ Basic |
+| **DNSSEC & CAA Record Auditing** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **RFC 9116 security.txt Discovery** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Email Breach Audit (k-Anonymity)** | ✅ Yes | ❌ No | ❌ No | ⚠️ Basic | ❌ No |
+| **Zero External Tool Dependencies** | ✅ Yes | ❌ Binary | ❌ Go binary | ❌ API keys req | ❌ Perl |
 
 ---
 
@@ -98,68 +150,81 @@ flowchart TD
     A([Target Domain / Email]) --> B[ReconX Orchestrator]
     
     subgraph Multi-Vector Intelligence Engine
-        B --> C[Domain & RDAP Engine]
-        B --> D[DNS & Mail Security Engine]
-        B --> E[Web & SSL Posture Engine]
-        B --> F[Subdomain CT Engine]
-        B --> G[Fast Port Audit Engine]
-        B --> H[Email & Breach Intel]
+        B --> C[Domain, GeoIP & ASN Engine]
+        B --> D[DNS, DNSSEC, CAA & Anti-Spoofing]
+        B --> E[WAF, SSL & OWASP Posture]
+        B --> F[Certificate Transparency Subdomain Engine]
+        B --> G[Fast Non-Invasive Port Scanner]
+        B --> H[Email OSINT & Breach Validator]
     end
 
-    C --> I[Data Aggregator]
+    C --> I[Unified Data Normalizer]
     D --> I
     E --> I
     F --> I
     G --> I
     H --> I
 
-    I --> J[Exposure & Risk Scoring Engine]
+    I --> J[Exposure & Risk Scoring Engine 0-100]
     
-    subgraph Multi-Channel Reporting
+    subgraph Multi-Channel Output Engine
         J --> K[Terminal ANSI Banner]
-        J --> L[Structured JSON Output]
-        J --> M[Branded Executive PDF Report]
+        J --> L[Structured JSON Pipeline]
+        J --> M[Branded Executive Vector PDF]
+        J --> N[Cyber-Dark Interactive HTML]
     end
 ```
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Docker
 
-### Prerequisites
+### Option A: Standard Python Installation
+
+#### Prerequisites
 - Python **3.8+**
 - Git
 
-### 1. Clone the Repository
 ```bash
+# 1. Clone the repository
 git clone https://github.com/ishan-walia/ReconX-Scanner.git
 cd ReconX-Scanner
-```
 
-### 2. Set Up a Virtual Environment (Recommended)
-```bash
-# Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
+# 2. Set up virtual environment
+# Linux / macOS:
+python3 -m venv venv && source venv/bin/activate
+# Windows:
+python -m venv venv && .\venv\Scripts\activate
 
-# Windows (Command Prompt / PowerShell)
-python -m venv venv
-.\venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
+```
+
+---
+
+### Option B: Docker Container (Recommended for Zero Setup)
+
+Run ReconX anywhere without installing local dependencies:
+
+```bash
+# Build the Docker image
+docker build -t reconx .
+
+# Run a scan and save PDF/HTML reports into local ./reports directory
+docker run --rm -v $(pwd)/reports:/app/reports reconx -t example.com --pdf --html
+```
+
+Or run via **Docker Compose**:
+```bash
+docker compose up
 ```
 
 ---
 
 ## 💻 Usage & Examples
 
-ReconX supports both an intuitive **Interactive Wizard** and a flexible **CLI Mode** suitable for automated scripting, CI/CD, and red/blue team workflows.
-
 ### 1. Interactive Mode
-Run the tool without arguments. ReconX will prompt for your target domain, email, and whether you'd like a branded PDF generated:
+Run without arguments for the interactive guided wizard:
 ```bash
 python reconx.py
 ```
@@ -173,10 +238,10 @@ admin@example.com
 
 [*] Initiating ReconX Advanced Scan on: example.com
     -> Resolving IP Geolocation, ASN & ISP...
-    -> Auditing DNS, SPF, DMARC & MX records...
+    -> Auditing DNS, SPF, DMARC, DNSSEC & CAA records...
     -> Querying RDAP Registrar & WHOIS data...
     -> Scanning common service ports...
-    -> Probing Website, SSL & Certificate Transparency logs...
+    -> Probing Website, WAF, SSL & CT logs...
     -> Discovering public subdomains...
 ```
 
@@ -194,24 +259,20 @@ python reconx.py -t example.com
 python reconx.py -t example.com -e security@example.com
 ```
 
-#### Generate Timestamped PDF Report in `reports/`
+#### Export Branded PDF & Interactive HTML Reports
 ```bash
-python reconx.py -t example.com --pdf
+python reconx.py -t example.com --pdf --html --company "DEFENSE LABS GLOBAL"
 ```
 
-#### Export PDF with Custom Corporate Branding
-```bash
-python reconx.py -t example.com -e admin@example.com --pdf reports/company_audit.pdf --company "CYBER DEFENSE INTELLIGENCE LABS"
-```
-
-#### Machine-Readable JSON for Pipelines
+#### Machine-Readable JSON for Pipelines & SIEM
 ```bash
 python reconx.py -t example.com --json > recon_results.json
 ```
 
-#### Clean Plaintext Output (No Colors)
+#### CI/CD Pipeline Quality Gate Example
+Fail the build if the target exposure score exceeds threshold:
 ```bash
-python reconx.py -t example.com --no-color
+python reconx.py -t staging.company.com --json | jq -e '.exposure.score <= 40'
 ```
 
 ---
@@ -220,100 +281,68 @@ python reconx.py -t example.com --no-color
 
 | Option | Short | Type | Description |
 | :--- | :---: | :---: | :--- |
-| `--target` | `-t` | String | Target domain or URL (e.g. `example.com`, `https://target.io`) |
-| `--email` | `-e` | String | Target email address to audit for format, MX and breach exposure |
-| `--pdf` | | String/Flag | Generate an executive PDF audit report (optional path) |
-| `--company` | | String | Company/Organization name for the PDF report header banner |
-| `--json` | | Flag | Output results as structured JSON (ideal for SIEM & automated tooling) |
-| `--no-color`| | Flag | Disable ANSI colors in terminal output |
-| `--help` | `-h` | Flag | Display CLI argument help manual |
+| `--target` | `-t` | String | Target domain or URL (e.g. `example.com` or `https://target.io`) |
+| `--email` | `-e` | String | Target email to audit for formatting, MX validity, and breach exposure |
+| `--harvest` | | Flag | Enable aggressive theHarvester OSINT email and host harvesting |
+| `--pdf` | | Path / Flag | Export executive PDF audit report (default: `reports/reconx_<target>_<time>.pdf`) |
+| `--html` | | Path / Flag | Export cyber-dark interactive HTML report (default: `reports/reconx_<target>_<time>.html`) |
+| `--company` | | String | Company/Organization branding name for report headers |
+| `--json` | | Flag | Output results as structured JSON (for SIEM, CI/CD, and pipelines) |
+| `--no-color`| | Flag | Disable ANSI color codes in console output |
+| `--help` | `-h` | Flag | Show full help and usage manual |
 
 ---
 
-## 🖥️ Terminal Output Preview
+## 📄 Executive Reporting
 
-```text
-============================================================
-                     RECONX AUDIT REPORT
-============================================================
-TARGET       : example.com
-SCAN TIME    : 2026-09-13 12:00:00 UTC
-RISK RATING  : LOW (24/100)
-------------------------------------------------------------
+ReconX generates two report formats:
 
-[+] DOMAIN & NETWORK INTELLIGENCE
-  • Primary IP        : 93.184.216.34
-  • Hostname / RDAP   : RESERVED-10, US
-  • HTTPS Enforcement : Enabled (Enforces secure transport)
-  • SSL Certificate   : Valid (DigiCert Inc, 184 days remaining)
-  • Server Header     : ECS (Technology disclosed)
+1. **Branded Vector PDF Report (`--pdf`)**:
+   - Customizable corporate header banner with confidentiality markings.
+   - Prominent Risk Score Callout (0-100) with color-coded risk badge.
+   - Clean tables for Infrastructure, DNSSEC, Anti-Spoofing, SSL/TLS, and Open Ports.
+   - Numbered, actionable remediation steps.
 
-[+] DNS & EMAIL AUTHENTICATION
-  • A Record          : 93.184.216.34
-  • MX Record         : mx.example.com [Priority 10]
-  • SPF Status        : Configured (v=spf1 -all)
-  • DMARC Status      : Configured (p=reject)
-
-[+] IDENTIFIED SUBDOMAINS (via Certificate Transparency)
-  • www.example.com
-  • mail.example.com
-  • dev.example.com
-
-[+] OPEN SERVICE PORTS
-  • Port 80/tcp   : HTTP
-  • Port 443/tcp  : HTTPS
-
-[+] SECURITY HEADERS AUDIT (Score: 6/7)
-  [✓] Strict-Transport-Security
-  [✓] Content-Security-Policy
-  [✓] X-Frame-Options
-  [✓] X-Content-Type-Options
-  [✓] Referrer-Policy
-  [✓] Permissions-Policy
-
-============================================================
-EXPOSURE SCORE : 24/100
-EXPOSURE LEVEL : LOW 🟢
-============================================================
-```
+2. **Cyber-Dark Interactive HTML Report (`--html`)**:
+   - Modern glassmorphism dark-theme layout with responsive grid.
+   - Visual gauge for the 0-100 Exposure Index.
+   - Comprehensive OWASP security headers comparison matrix.
+   - Discovered subdomain grid and security findings alerts.
+   - Self-contained single file with zero external runtime dependencies.
 
 ---
 
-## 📄 Executive PDF Reporting
+## 🚀 Future Roadmap & Next Milestones
 
-ReconX features a built-in vector PDF reporting engine:
-- **Corporate Branding**: Configurable top organization title banner.
-- **Executive Summary Box**: Visual risk metric callout with date, target, and status badge.
-- **Categorized Finding Tables**: Formatted breakdowns of DNS, SSL, Web, Ports, and Email exposures.
-- **Actionable Remediation Matrix**: Step-by-step mitigation recommendations for administrators.
+What's coming next in ReconX? Here is the strategic product roadmap:
 
-*Reports are automatically saved to the `reports/` directory with clean ISO-compliant timestamps.*
+### 📍 Phase 1: Threat Intelligence & Passive Feeds (v2.0)
+- [ ] **Shodan & Censys Passive API Integration**: Ingest indexed banners, past CVEs, and historical exposed services without sending active probe packets.
+- [ ] **VirusTotal / AlienVault OTX IP Reputation**: Query threat intelligence feeds to check if the target IP is flagged in botnets, malware distribution, or phishing.
+- [ ] **HaveIBeenPwned Enterprise v3 Integration**: Automated breach metadata retrieval (leak names, compromised data classes).
 
----
+### 📍 Phase 2: Active Vulnerability & Misconfiguration Auditing (v2.2)
+- [ ] **Subdomain Takeover Detector**: Fingerprint dangling CNAME pointers to identify unclaimed cloud resources (AWS S3, GitHub Pages, Heroku, Azure WebApps).
+- [ ] **DNS Zone Transfer (AXFR) Audit**: Attempt non-destructive DNS zone transfers against authoritative nameservers to identify exposed zone files.
+- [ ] **CORS Misconfiguration Auditor**: Passive inspection of `Access-Control-Allow-Origin: *` and credential reflections.
 
-## 📐 Exposure Scoring Methodology
+### 📍 Phase 3: DevSecOps Automation & Continuous Monitoring (v2.5)
+- [ ] **Webhook Alert Dispatcher**: Send instant scan summaries and PDF reports directly to **Slack**, **Microsoft Teams**, or **Discord**.
+- [ ] **Scheduled Continuous Monitor & Asset Diffing**: Cron daemon that re-scans assets periodically and triggers alerts when a new subdomain or port appears.
+- [ ] **Pre-Commit / GitHub Action Gate**: Official ReconX GitHub Action with configurable risk thresholds (`fail-on-risk-score > 50`).
 
-ReconX computes the **Security Exposure Index (0–100)** through a weighted penalty formula based on real-world exploitability:
-
-| Vector | Condition | Exposure Penalty |
-| :--- | :--- | :---: |
-| **Transport Security** | No HTTPS redirect / Plain HTTP accessible | `+25` |
-| **SSL/TLS Validation** | Expired or missing SSL certificate | `+20` |
-| **Email Defense** | Missing or misconfigured DMARC record | `+15` |
-| **Email Defense** | Missing SPF record | `+10` |
-| **OWASP Headers** | Missing critical defensive headers | `+3` each |
-| **Information Leak** | Verbose `Server` / `X-Powered-By` banner | `+5` |
-| **Credential Intel** | Email identified in public breach index | `+20` |
-| **Attack Surface** | High-risk administrative ports exposed | `+10` each |
+### 📍 Phase 4: Attack Surface Graph & Web Dashboard (v3.0)
+- [ ] **Interactive Attack Surface Graph**: Force-directed network graph (D3.js / Cytoscape) visually mapping: Target Apex ➔ Subdomains ➔ IP Addresses ➔ Open Ports ➔ WAF ➔ Vulnerabilities.
+- [ ] **FastAPI Backend & Next.js Web UI**: Full-fledged self-hosted web console with scan history, target management, and multi-user access.
+- [ ] **AI-Assisted Remediation Playbooks**: Context-aware remediation code snippets (Apache, Nginx, Cloudflare, Caddy) for every identified gap.
 
 ---
 
 ## 🧪 Running Unit Tests
 
-ReconX comes with a test suite verifying scanner modules, scoring math, and input sanitization:
+ReconX includes a 100% passing test suite validating normalization, scoring, WAF identification, and report renderers:
 
 ```bash
-# Run all unit tests
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
@@ -323,24 +352,30 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ```
 reconx/
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions automated multi-version CI/CD
 ├── reconx/
-│   ├── __init__.py          # Package initialization
-│   ├── core.py              # Central scanner coordinator & pipeline
-│   ├── domain_recon.py      # IP, DNS records (A/MX/TXT), RDAP & WHOIS
-│   ├── website_recon.py     # SSL/TLS, HTTPS redirect, OWASP headers
-│   ├── subdomain_recon.py   # Certificate Transparency (crt.sh) discovery
-│   ├── port_scanner.py      # Concurrent TCP port & service auditing
-│   ├── email_recon.py       # Email syntax, MX validation & breach lookup
-│   ├── scoring.py           # Exposure scoring engine (0-100) & advice
-│   ├── pdf_generator.py     # Corporate branded PDF report generator
-│   └── reporter.py          # Terminal ANSI banner & JSON renderers
-├── reports/                 # Default directory for generated PDF audits
+│   ├── __init__.py            # Package initialization
+│   ├── core.py                # Central scanner coordinator & pipeline
+│   ├── domain_recon.py        # IP, DNS records, DNSSEC, CAA, RDAP & WHOIS
+│   ├── website_recon.py       # WAF/CDN detection, SSL/TLS, security.txt, OWASP headers
+│   ├── subdomain_recon.py     # Certificate Transparency (crt.sh) discovery
+│   ├── port_scanner.py        # Concurrent TCP port & service auditing
+│   ├── email_recon.py         # Email syntax, MX validation & breach lookup
+│   ├── scoring.py             # Exposure scoring engine (0-100) & advice
+│   ├── pdf_generator.py       # Corporate branded vector PDF report generator
+│   ├── html_generator.py      # Cyber-dark responsive interactive HTML report generator
+│   └── reporter.py            # Terminal ANSI banner & JSON renderers
+├── reports/                   # Default output directory for generated audits
 ├── tests/
-│   └── test_reconx.py       # Comprehensive unit test suite
-├── reconx.py                # Main executable CLI & interactive entry point
-├── requirements.txt         # Production dependencies
-├── .gitignore               # Environment & cache ignores
-└── README.md                # Documentation & usage manual
+│   └── test_reconx.py         # Unit test suite covering all modules
+├── Dockerfile                 # Multi-stage hardened Docker container definition
+├── docker-compose.yml         # Container compose configuration
+├── reconx.py                  # Main executable CLI & interactive entry point
+├── requirements.txt           # Production dependencies
+├── .gitignore                 # Environment, cache & report ignores
+└── README.md                  # Comprehensive documentation & roadmap
 ```
 
 ---
@@ -348,18 +383,18 @@ reconx/
 ## ⚖️ Legal & Ethical Disclaimer
 
 > [!WARNING]
-> **ReconX is developed exclusively for authorized security auditing, educational research, defensive hardening, and authorized penetration testing.**
-> Users are strictly responsible for adhering to applicable local and international laws. Performing network audits against targets without prior authorization is strictly prohibited. The author assumes no liability for any misuse or damage caused by this software.
+> **ReconX is developed strictly for authorized security assessments, defensive posture hardening, educational research, and authorized penetration testing.**
+> Users are solely responsible for ensuring compliance with applicable local, state, and international cyber laws. Performing scans against targets without prior authorization is strictly prohibited. The developer assumes no liability for any misuse, unauthorized access, or consequences resulting from this tool.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you'd like to contribute:
-1. Fork the Project (`https://github.com/ishan-walia/ReconX-Scanner`)
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: Add AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
+Contributions from the cybersecurity and open-source communities are warmly welcomed!
+1. Fork the Repository (`https://github.com/ishan-walia/ReconX-Scanner`)
+2. Create your Feature Branch (`git checkout -b feature/EpicNewFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add EpicNewFeature'`)
+4. Push to the Branch (`git push origin feature/EpicNewFeature`)
 5. Open a Pull Request
 
 ---
@@ -369,5 +404,5 @@ Contributions are welcome! If you'd like to contribute:
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 <div align="center">
-  <sub>Developed by <b>Ishan Walia</b> • Powered by Open-Source Cyber Intelligence</sub>
+  <sub>Engineered by <b>Ishan Walia</b> • Powered by Open-Source Cyber Threat Intelligence</sub>
 </div>

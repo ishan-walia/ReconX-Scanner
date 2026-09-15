@@ -163,6 +163,11 @@ def generate_pdf_report(
     table_row("ASN Network", geoip.get("asn", "Unknown"), True)
     table_row("Open Ports", port_data.get("summary", "None (Filtered)"), False)
 
+    web_info = website_data.get("web", {})
+    waf_str = web_info.get("waf_detected")
+    if waf_str and waf_str != "None Detected (Direct Origin / Generic)":
+        table_row("WAF / CDN", waf_str, True, (13, 110, 253))
+
     # 2. Registrar & WHOIS
     pdf.section_header("2. Registrar & WHOIS Intelligence")
     whois_info = domain_data.get("whois", {})
@@ -187,6 +192,11 @@ def generate_pdf_report(
     dmarc_color = (40, 167, 69) if dns_info.get("has_dmarc") else (220, 53, 69)
     table_row("DMARC Record", dmarc_status, False, dmarc_color)
 
+    if dns_info.get("has_dnssec"):
+        table_row("DNSSEC", "Active (Cryptographic Validation Enabled)", True, (40, 167, 69))
+    if dns_info.get("has_caa"):
+        table_row("CAA Policy", "Configured (Restricts CA issuance)", False, (40, 167, 69))
+
     # 4. SSL / Certificate Intelligence
     pdf.section_header("4. SSL / TLS Certificate Intelligence")
     ssl_info = website_data.get("ssl", {})
@@ -199,11 +209,12 @@ def generate_pdf_report(
 
     # 5. Website Security & Headers
     pdf.section_header("5. Website Security & OWASP Headers")
-    web_info = website_data.get("web", {})
     table_row("HTTPS Status", "Enabled" if web_info.get("https_enabled") else "Disabled / Offline", False)
     table_row("Server Header", web_info.get("server_banner", "Not Disclosed"), True)
     table_row("robots.txt / sitemap", f"robots: {'Found' if web_info.get('robots_found') else 'Not Found'} | sitemap: {'Found' if web_info.get('sitemap_found') else 'Not Found'}", False)
-    table_row("Security Headers", f"{web_info.get('headers_score_str', '0/7')} Headers Present", True)
+    if web_info.get("security_txt_found"):
+        table_row("security.txt", "Configured (RFC 9116 Disclosure Policy)", True, (40, 167, 69))
+    table_row("Security Headers", f"{web_info.get('headers_score_str', '0/7')} Headers Present", False)
 
     # 6. Subdomains
     pdf.section_header("6. Discovered Public Subdomains")
@@ -215,13 +226,26 @@ def generate_pdf_report(
     else:
         table_row("Subdomains", "No public subdomains discovered via CT logs or DNS", False)
 
-    # 7. Optional Email Section
+    # 7. Harvested OSINT Intelligence (theHarvester Engine)
+    harvester_data = report_data.get("harvester", {})
+    emails_harvested = harvester_data.get("emails", [])
+    if emails_harvested or harvester_data.get("users"):
+        pdf.section_header("7. theHarvester OSINT Intelligence")
+        if emails_harvested:
+            email_summary = ", ".join(e["email"] for e in emails_harvested[:8])
+            if len(emails_harvested) > 8:
+                email_summary += f" ... (+{len(emails_harvested)-8} more)"
+            table_row(f"Harvested Emails ({len(emails_harvested)})", email_summary, False)
+        if harvester_data.get("users"):
+            table_row("Identified Contacts", ", ".join(harvester_data.get("users", [])[:4]), True)
+
+    # 8. Optional Specific Target Email Section
     if email_data:
-        pdf.section_header("7. Email OSINT & Compromise Analysis")
+        pdf.section_header("8. Email Breach & Compromise Analysis")
         table_row("Target Email", email_data.get("email", "N/A"), False)
         table_row("Breach Check", email_data.get("breach_status", "N/A"), True)
 
-    # 8. Hardening Recommendations
+    # 9. Hardening Recommendations
     pdf.section_header("Hardening & Security Recommendations")
     recs = exposure.get("recommendations", [])
     if recs:

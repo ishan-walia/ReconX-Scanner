@@ -12,6 +12,7 @@ from reconx.website_recon import analyze_website
 from reconx.subdomain_recon import discover_subdomains
 from reconx.email_recon import analyze_email
 from reconx.scoring import calculate_exposure_score
+from reconx.harvester import run_harvester
 
 
 def scan_target(target: str, email: Optional[str] = None) -> Dict[str, Any]:
@@ -40,7 +41,11 @@ def scan_target(target: str, email: Optional[str] = None) -> Dict[str, Any]:
     if email and email.strip():
         email_data = analyze_email(email.strip())
 
-    # 6. Exposure Scoring
+    # 6. Passive theHarvester OSINT Engine (Harvests Emails, Hosts & Contacts)
+    has_mx = domain_data.get("dns", {}).get("has_mx", False)
+    harvester_data = run_harvester(host, root_domain, has_mx=has_mx, subdomain_list=subdomain_data)
+
+    # 7. Exposure Scoring
     exposure_data = calculate_exposure_score(domain_data, website_data, subdomain_data, email_data or {})
 
     return {
@@ -51,5 +56,6 @@ def scan_target(target: str, email: Optional[str] = None) -> Dict[str, Any]:
         "website": website_data,
         "subdomains": subdomain_data,
         "email": email_data,
+        "harvester": harvester_data,
         "exposure": exposure_data,
     }

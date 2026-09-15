@@ -209,6 +209,11 @@ def analyze_domain(target: str) -> Dict[str, Any]:
     # Check for Domain Parking signatures in NS
     is_parked = any("parking" in ns.lower() or "sedoparking" in ns.lower() for ns in ns_records)
 
+    # CAA & DNSSEC Detection
+    caa_records = query_doh_record(root_domain, "CAA")
+    ds_records = query_doh_record(root_domain, "DS")
+    has_dnssec = len(ds_records) > 0
+
     # RDAP WHOIS queried on apex root domain
     rdap_info = query_rdap(root_domain)
 
@@ -223,6 +228,7 @@ def analyze_domain(target: str) -> Dict[str, Any]:
             "mx": mx_records,
             "ns": ns_records,
             "txt": txt_records,
+            "caa": caa_records,
             "has_a": len(a_records) > 0,
             "has_mx": len(mx_records) > 0,
             "has_ns": len(ns_records) > 0,
@@ -230,6 +236,8 @@ def analyze_domain(target: str) -> Dict[str, Any]:
             "spf_record": spf_record,
             "has_dmarc": has_dmarc,
             "dmarc_record": dmarc_record,
+            "has_dnssec": has_dnssec,
+            "has_caa": len(caa_records) > 0,
         },
         "whois": rdap_info
     }
